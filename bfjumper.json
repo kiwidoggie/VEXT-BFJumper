@@ -1,0 +1,9 @@
+{
+	"Name": "bfjumper",
+	"Authors": [ "kiwidog" ],
+	"Description": "bfjumper mod",
+	"URL": "",
+	"Version": 1,
+	"HasWebUI": false,
+	"HasVeniceEXT": true
+}
