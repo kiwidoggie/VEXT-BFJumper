@@ -1,46 +1,49 @@
 -- local MyClass = require 'MyFolder/MyClass'
-class 'bfjumper'
+class 'BFJumperClient'
 
-function bfjumper:__init()
-	--print("Hello World")
-	-- Client Input
-	self.m_ClientUpdateInputEvent = Events:Subscribe('Client:UpdateInput', self, self.OnUpdateInput)
+function BFJumperClient:__init()
+	self.m_Hook = Hooks:Install("Input:PreUpdate", 999, self.OnUpdateInput)
 	
-	self.m_MeleeTime = 0
-	self.m_ReloadTime = 0
+	self.m_MeleeTime = 0.01
+	self.m_ReloadTime = 0.01
 end
 
-function bfjumper:OnUpdateInput(p_Delta)
-	local s_Attack = InputManager:IsDown(InputConceptIdentifiers.ConceptMeleeAttack)
-	if s_Attack == true then
+function BFJumperClient:OnUpdateInput(p_Cache, p_DeltaTime)
+	local s_Saving = p_Cache[math.floor(InputConceptIdentifiers.ConceptMeleeAttack) + 1]
+	local s_Loading = p_Cache[math.floor(InputConceptIdentifiers.ConceptReload) + 1]
+	
+	print(self.m_MeleeTime)
+	print(self.m_ReloadTime)
+	
+	if s_Saving > 0.0 then
 		self.m_MeleeTime = self.m_MeleeTime + p_Delta
 	end
 	
-	local s_Reload = InputManager:IsDown(InputConceptIdentifiers.ConceptReload)
-	if s_Reload == true then
+	if s_Loading > 0.0 then
 		self.m_ReloadTime = self.m_ReloadTime + p_Delta
 	end
 	
-	if self.m_MeleeTime > 30 then
-		-- send teleport request coordinates
-		local s_Sent = self.RequestSave()
-		if s_Sent == true then
-			print("Save Requested.")
+	-- Handle Saving
+	if self.m_MeleeTime > 1.5 then
+		local s_SaveSent = self:RequestSave()
+		if s_SaveSent == true then
+			print("Save Requested")
 		end
-		self.m_MeleeTime = 0
+		
+		self.m_MeleeTime = 0.01
 	end
 	
-	if self.m_ReloadTime > 30 then
-		-- send teleport request coordinates
-		local s_Sent = self.RequestLoad()
-		if s_Sent == true then
-			print("Load Requested.")
+	if self.m_ReloadTime > 1.5 then
+		local s_LoadSent = self:RequestLoad()
+		if s_LoadSent == true then
+			print("Load Requested")
 		end
-		self.m_ReloadTime = 0
+		
+		self.m_ReloadTime = 0.01
 	end
 end
 
-function bfjumper:RequestSave()
+function BFJumperClient:RequestSave()
 	local s_Player = PlayerManager:GetLocalPlayer()
 	if s_Player == nil then
 		return false
@@ -58,9 +61,12 @@ function bfjumper:RequestSave()
 	return true
 end
 
-function bfjumper:RequestLoad()
+function BFJumperClient:RequestLoad()
 	NetEvents:SendLocal('bfjumper:load')
+	
+	return true
 end
-local bfjumper = bfjumper()
+
+g_BFJumperClient = BFJumperClient()
 
 -- If external class use "return MyModName"

@@ -1,6 +1,6 @@
-class 'bfjumper'
+class 'BFJumperServer'
 
-function bfjumper:__init()
+function BFJumperServer:__init()
 	self.m_SaveEvent = NetEvents:Subscribe('bfjumper:save', self, self.OnSave)
 	self.m_LoadEvent = NetEvents:Subscribe('bfjumper:load', self, self.OnLoad)
 	
@@ -8,12 +8,12 @@ function bfjumper:__init()
 	self.m_HasSaved = false
 end
 
-function bfjumper:OnSave(p_X, p_Y, p_Z)
+function BFJumperServer:OnSave(p_X, p_Y, p_Z)
 	self.m_LastPosition = Vec3(p_X, p_Y, p_Z)
 	self.m_HasSaved = true
 end
 
-function bfjumper:OnLoad()
+function BFJumperServer:OnLoad()
 	if self.m_HasSaved == false then
 		return
 	end
@@ -31,6 +31,6 @@ function bfjumper:OnLoad()
 	s_Soldier.SetPosition(self.m_LastPosition)
 end
 
-local bfjumper = bfjumper()
+g_BFJumperServer = BFJumperServer()
 
 -- If external class use "return MyModName"
