@@ -2,25 +2,22 @@
 class 'BFJumperClient'
 
 function BFJumperClient:__init()
-	self.m_Hook = Hooks:Install("Input:PreUpdate", 999, self.OnUpdateInput)
+	self.m_Hook = Hooks:Install("Input:PreUpdate", 999, self, self.OnUpdateInput)
 	
-	self.m_MeleeTime = 0.01
-	self.m_ReloadTime = 0.01
+	self.m_MeleeTime = 0.0
+	self.m_ReloadTime = 0.0
 end
 
-function BFJumperClient:OnUpdateInput(p_Cache, p_DeltaTime)
+function BFJumperClient:OnUpdateInput(p_Hook, p_Cache, p_DeltaTime)
 	local s_Saving = p_Cache[math.floor(InputConceptIdentifiers.ConceptMeleeAttack) + 1]
 	local s_Loading = p_Cache[math.floor(InputConceptIdentifiers.ConceptReload) + 1]
 	
-	print(self.m_MeleeTime)
-	print(self.m_ReloadTime)
-	
 	if s_Saving > 0.0 then
-		self.m_MeleeTime = self.m_MeleeTime + p_Delta
+		self.m_MeleeTime = self.m_MeleeTime + p_DeltaTime
 	end
-	
+
 	if s_Loading > 0.0 then
-		self.m_ReloadTime = self.m_ReloadTime + p_Delta
+		self.m_ReloadTime = self.m_ReloadTime + p_DeltaTime
 	end
 	
 	-- Handle Saving
@@ -30,7 +27,7 @@ function BFJumperClient:OnUpdateInput(p_Cache, p_DeltaTime)
 			print("Save Requested")
 		end
 		
-		self.m_MeleeTime = 0.01
+		self.m_MeleeTime = 0.0
 	end
 	
 	if self.m_ReloadTime > 1.5 then
@@ -39,7 +36,7 @@ function BFJumperClient:OnUpdateInput(p_Cache, p_DeltaTime)
 			print("Load Requested")
 		end
 		
-		self.m_ReloadTime = 0.01
+		self.m_ReloadTime = 0.0
 	end
 end
 
@@ -55,8 +52,11 @@ function BFJumperClient:RequestSave()
 	end
 	
 	local s_Transform = s_Soldier.transform
+
+	print(tostring(s_Transform))
+
 	
-	NetEvents:SendLocal('bfjumper:save', s_Transform.trans.x, s_Transform.trans.y, s_Transform.trans.z)
+	NetEvents:SendLocal('bfjumper:save', s_Transform)
 	
 	return true
 end
